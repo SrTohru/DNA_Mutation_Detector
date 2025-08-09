@@ -1,0 +1,24 @@
+### Simple health check (web)
+GET http://127.0.0.1:8000/prueba
+
+### POST /mutation (should return 200 {"mutation": true})
+POST http://127.0.0.1:8000/mutation
+Content-Type: application/json
+
+{
+  "dna": ["ATGCGA","CAGTGC","TTATGT","AGAAGG","CCCCTA","TCACTG"]
+}
+
+### POST /mutation (no mutation example, expect 403 {"mutation": false})
+POST http://127.0.0.1:8000/mutation
+Content-Type: application/json
+
+{
+  "dna": ["ATGCGA","CAGTGC","TTATTT","AGACGG","GCGTCA","TCACTG"]
+}
+
+### GET /stats
+GET http://127.0.0.1:8000/stats
+
+### GET /list (latest 10)
+GET http://127.0.0.1:8000/list
