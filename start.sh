@@ -1,12 +1,18 @@
 #!/bin/bash
-# Esperar a que la base de datos esté lista (opcional, ajusta el comando si usas MongoDB)
-# Aquí puedes agregar un comando para esperar a que MongoDB Atlas esté disponible si quieres
+set -e
 
-# Ejecutar migraciones (forzado)
+echo "⏳ Esperando a que MongoDB Atlas esté listo..."
+# Espera hasta que el puerto responda
+until nc -z mycluster-shard-00-00.6tlbp.mongodb.net 27017; do
+    sleep 2
+done
+
+echo "✅ MongoDB listo. Ejecutando migraciones..."
 php artisan migrate --force
 
-# Optimizar configuración cache
+echo "⚡ Optimizando Laravel..."
 php artisan optimize
+php artisan storage:link
 
-# Levantar servidor de Laravel (puedes usar php-fpm o serve)
+echo "🚀 Iniciando servidor Laravel..."
 php artisan serve --host=0.0.0.0 --port=8000

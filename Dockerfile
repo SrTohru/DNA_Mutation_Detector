@@ -1,42 +1,53 @@
-# Usamos imagen oficial PHP con extensiones comunes para Laravel
-FROM php:8.2-fpm
+# =========================
+# FASE 1: BUILD
+# =========================
+FROM php:8.3-cli AS build
 
-# Instalar dependencias del sistema y extensiones PHP necesarias
-RUN apt-get update && apt-get install -y \
-    git curl unzip libzip-dev zip libpng-dev libonig-dev libxml2-dev \
-    libssl-dev \
-    nodejs npm \
-    && docker-php-ext-install pdo_mysql zip mbstring exif pcntl bcmath gd sockets \
-    && pecl install mongodb \
+# Instalar dependencias necesarias para MongoDB, Composer y Node
+RUN apt-get update \
+    && apt-get install -y libssl-dev pkg-config php-pear php-dev unzip git curl netcat \
+    && pecl install mongodb-1.21.0 \
     && docker-php-ext-enable mongodb
 
-# Instalar Composer globalmente
+# Instalar Node 20 para Vite
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# Instalar Composer manualmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos de proyecto al contenedor
+# Copiar el código de la app
 COPY . .
 
-# Instalar dependencias PHP sin interacción y optimizando autoload
+# Instalar dependencias PHP y JS
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
-
-# Instalar dependencias Node.js y construir assets frontend
 RUN npm install
 RUN npm run build
 
-# Optimizar Laravel y permisos (sin migraciones aquí)
-RUN php artisan optimize \
-    && chmod -R 777 storage bootstrap/cache \
-    && php artisan storage:link
+# =========================
+# FASE 2: PRODUCCIÓN
+# =========================
+FROM php:8.3-cli
 
-# Copiar script de arranque
+# Instalar extensiones necesarias
+RUN apt-get update \
+    && apt-get install -y libssl-dev pkg-config php-pear php-dev unzip git netcat \
+    && pecl install mongodb-1.21.0 \
+    && docker-php-ext-enable mongodb
+
+WORKDIR /app
+
+# Copiar desde la fase de build
+COPY --from=build /app /app
+
+# Copiar el script de arranque
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Puerto que exponemos
+# Exponer el puerto
 EXPOSE 8000
 
-# Ejecutar script de arranque al iniciar el contenedor
+# Comando de inicio
 CMD ["/start.sh"]
