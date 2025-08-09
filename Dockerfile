@@ -3,15 +3,10 @@
 # =========================
 FROM php:8.3-cli AS build
 
-# Instalar dependencias necesarias para MongoDB y Node
+# Instalar dependencias necesarias para MongoDB y Composer
 RUN apt-get update \
-    && apt-get install -y \
-       libssl-dev \
-       pkg-config \
-       unzip \
-       git \
-       curl \
-    && pecl install mongodb \
+    && apt-get install -y libssl-dev pkg-config unzip git curl \
+    && pecl install mongodb-1.21.0 \
     && docker-php-ext-enable mongodb
 
 # Instalar Node 20 para Vite
@@ -37,26 +32,23 @@ RUN php artisan migrate --force \
     && chmod -R 777 storage bootstrap/cache \
     && php artisan storage:link
 
+
 # =========================
 # FASE 2: PRODUCCIÓN
 # =========================
 FROM php:8.3-cli
 
-# Instalar extensión MongoDB en producción
+# Instalar extensión MongoDB en la fase final también
 RUN apt-get update \
-    && apt-get install -y \
-       libssl-dev \
-       pkg-config \
-       unzip \
-       git \
+    && apt-get install -y libssl-dev pkg-config unzip git \
     && pecl install mongodb-1.21.0 \
     && docker-php-ext-enable mongodb \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copiar desde la fase build
 COPY --from=build /app /app
 
-# Comando por defecto de Laravel
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+EXPOSE 8000
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
