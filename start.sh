@@ -2,7 +2,6 @@
 set -e
 
 echo "⏳ Esperando a que MongoDB Atlas esté listo..."
-# Espera hasta que el puerto responda
 until nc -z mycluster-shard-00-00.6tlbp.mongodb.net 27017; do
     sleep 2
 done

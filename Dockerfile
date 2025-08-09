@@ -5,7 +5,7 @@ FROM php:8.3-cli AS build
 
 # Instalar dependencias necesarias para MongoDB, Composer y Node
 RUN apt-get update \
-    && apt-get install -y libssl-dev pkg-config php-pear php-dev unzip git curl netcat \
+    && apt-get install -y libssl-dev pkg-config php8.3-dev unzip git curl netcat-openbsd \
     && pecl install mongodb-1.21.0 \
     && docker-php-ext-enable mongodb
 
@@ -33,7 +33,7 @@ FROM php:8.3-cli
 
 # Instalar extensiones necesarias
 RUN apt-get update \
-    && apt-get install -y libssl-dev pkg-config php-pear php-dev unzip git netcat \
+    && apt-get install -y libssl-dev pkg-config php8.3-dev unzip git netcat-openbsd \
     && pecl install mongodb-1.21.0 \
     && docker-php-ext-enable mongodb
 
@@ -42,11 +42,11 @@ WORKDIR /app
 # Copiar desde la fase de build
 COPY --from=build /app /app
 
-# Copiar el script de arranque
+# Copiar script de arranque
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Exponer el puerto
+# Exponer puerto
 EXPOSE 8000
 
 # Comando de inicio
