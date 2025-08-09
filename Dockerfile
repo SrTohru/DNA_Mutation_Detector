@@ -49,7 +49,7 @@ RUN apt-get update \
        pkg-config \
        unzip \
        git \
-    && pecl install mongodb \
+    && pecl install mongodb-1.21.0 \
     && docker-php-ext-enable mongodb \
     && rm -rf /var/lib/apt/lists/*
 
