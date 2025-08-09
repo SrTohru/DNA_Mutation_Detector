@@ -3,9 +3,16 @@
 # =========================
 FROM php:8.3-cli AS build
 
-# Instalar dependencias necesarias para MongoDB y Composer
+# Instalar dependencias necesarias para MongoDB, Composer y Node
 RUN apt-get update \
-    && apt-get install -y libssl-dev pkg-config php-pear php-dev unzip git curl \
+    && apt-get install -y \
+       libssl-dev \
+       pkg-config \
+       php-pear \
+       php8.3-dev \
+       unzip \
+       git \
+       curl \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb
 
@@ -31,12 +38,29 @@ RUN php artisan migrate --force \
     && php artisan optimize \
     && chmod -R 777 storage bootstrap/cache \
     && php artisan storage:link
-# Instalar dependencias PHP y JS
+
 # =========================
 # FASE 2: PRODUCCIÓN
 # =========================
 FROM php:8.3-cli
 
-# Instalar extensión MongoDB en la fase final también
+# Instalar extensión MongoDB en producción
 RUN apt-get update \
-    && apt-get install -y libssl-dev pkg-config php-pear php-dev unzip git
+    && apt-get install -y \
+       libssl-dev \
+       pkg-config \
+       php-pear \
+       php8.3-dev \
+       unzip \
+       git \
+    && pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copiar desde la fase build
+COPY --from=build /app /app
+
+# Comando por defecto de Laravel
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
