@@ -112,11 +112,12 @@ return [
         // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
     ],
 
-    'mongodb' => [
-        'driver'   => 'mongodb',
-        'dsn'      => env('MONGODB_DSN'), // usar DSN de Atlas o de tu Mongo
-        'database' => env('MONGODB_DATABASE', 'dna_db'),
-    ],
+'mongodb' => [
+    'driver'   => 'mongodb',
+    'dsn'      => env('MONGODB_DSN'), // usar DSN de Atlas o de tu Mongo
+    'database' => env('MONGODB_DATABASE', 'dna_db'),
+],
+
 
 ],
 

@@ -47,4 +47,20 @@ class DnaController extends Controller
 
         return response()->json(['count_mutations'=>$mutations,'count_no_mutation'=>$noMutations,'ratio'=>$ratio]);
     }
+
+    public function list()
+    {
+        $lastRequests = Dna::orderBy('created_at', 'desc')
+            ->take(10)
+            ->get(['dna', 'mutation', 'created_at'])
+            ->map(function ($item) {
+                return [
+                    'date' => $item->created_at->format('Y-m-d H:i:s'),
+                    'dna' => implode(',', $item->dna), // Convertimos array a cadena legible
+                    'mutation' => $item->mutation ? 'Mutación' : 'No mutación'
+                ];
+            });
+
+        return response()->json($lastRequests);
+    }
 }
