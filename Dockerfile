@@ -3,13 +3,11 @@
 # =========================
 FROM php:8.3-cli AS build
 
-# Instalar dependencias necesarias para MongoDB, Composer y Node
+# Instalar dependencias necesarias para MongoDB y Node
 RUN apt-get update \
     && apt-get install -y \
        libssl-dev \
        pkg-config \
-       php-pear \
-       php8.3-dev \
        unzip \
        git \
        curl \
@@ -49,8 +47,6 @@ RUN apt-get update \
     && apt-get install -y \
        libssl-dev \
        pkg-config \
-       php-pear \
-       php8.3-dev \
        unzip \
        git \
     && pecl install mongodb \
