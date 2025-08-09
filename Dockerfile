@@ -33,9 +33,11 @@ FROM php:8.3-cli
 
 # Instalar extensiones necesarias
 RUN apt-get update \
-    && apt-get install -y libssl-dev pkg-config unzip git netcat-openbsd \
+    && apt-get install -y libssl-dev pkg-config unzip git curl netcat-openbsd ca-certificates \
+    && update-ca-certificates \
     && pecl install mongodb-1.21.0 \
     && docker-php-ext-enable mongodb
+
 
 WORKDIR /app
 
